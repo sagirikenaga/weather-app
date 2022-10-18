@@ -15,6 +15,7 @@ currentWindEl = document.getElementById("wind");
 currentHumidityEl = document.getElementById("humidity");
 currentIconEl = document.getElementById("weather-icon");
 currentImage = document.getElementById("current-img");
+let weatherFound;
 
 const initialURL = 'https://api.openweathermap.org/data/2.5/forecast?appid=ade8f7a4c03aa4d6280241e8e6da95e0'
 
@@ -25,7 +26,6 @@ const findCityInfo = function(event) {
 
     const cadCode = 'CA';
     const city = searchInputEl.value.trim();
-    searchInputEl.value = '';
     const updatedGeocodeUrl = `${geocodeInitialURL}${city},${cadCode}`;
   
     fetch(updatedGeocodeUrl).then(function(response) {
@@ -38,8 +38,10 @@ const findCityInfo = function(event) {
         return alert(`City not found. Please enter valid city name.`);
       }
       const cityFound = data[0];
+      const lat = cityFound.lat;
+      const lon = cityFound.lon;
       console.log(cityFound);
-      return getInfo(cityFound);
+      return getInfo(lat, lon, city);
     })
     .catch(function(error) {
       console.log(error);
@@ -47,10 +49,8 @@ const findCityInfo = function(event) {
     }) 
   }
 
-const getInfo = function(cityFound) {
-    let lat = cityFound.lat;
-    let lon = cityFound.lon;
-    let cityName = cityFound.name;
+const getInfo = function(lat, lon, city) {
+
     let updatedURL = `${initialURL}&lat=${lat}&lon=${lon}`;
   
     fetch(updatedURL).then(function(response) {
@@ -60,11 +60,10 @@ const getInfo = function(cityFound) {
     })
 
     .then(function(data) {
-      const weatherFound = data;
       //update current forecast
+      weatherFound = data;
       console.log(weatherFound);
-      cityNameText = document.createTextNode(` ${weatherFound.city["name"]}`);
-      cityNameEl.appendChild(cityNameText);
+      cityNameEl.innerHTML = `City: ${weatherFound.city["name"]}`
       currentDate = document.createTextNode(` ${moment().format("ddd MMM D YYYY")}`);
       currentDateEl.appendChild(currentDate);
       let totalTemp = 0;
@@ -102,8 +101,8 @@ const getInfo = function(cityFound) {
         futureIcon[j].src = iconUrl;
         image[j].appendChild(futureIcon[j]);
       }
-      // updateHistory();
-     
+      updateHistory(lat, lon, city);
+
     })
     .catch(function(error) {
       console.log(error);
@@ -111,9 +110,48 @@ const getInfo = function(cityFound) {
     })
   }
 
-  // updateHistory() {
-  //   gwergewrg
-  // }
+function updateHistory(lat, lon, city) {
+  let storedCity = {
+    lat: lat,
+    lon: lon,
+    city: city
+  }
+  let searchedCities = JSON.parse(localStorage.getItem("cityinfo"));
+  if (!searchedCities) {
+    searchedCities =[];
+  }
+  if (!searchedCities.some(c => c.city == storedCity.city)) {
+    searchedCities.push(storedCity);
+    localStorage.setItem('cityinfo', JSON.stringify(searchedCities));
+    const button = document.createElement("button");
+    button.setAttribute('type', 'button');
+    button.innerHTML = storedCity.city;
+    button.onclick = function () {
+      getInfo(storedCity.lat, storedCity.lon, storedCity.city);
+    }
+    document.getElementById("history").appendChild(button);
+  }
+  searchInputEl.value = '';
+}
 
-  searchFormEl.addEventListener('submit', findCityInfo);
+function createButtons() {
+  let searchedCities = JSON.parse(localStorage.getItem("cityinfo"));
+  if (searchedCities) { 
+    for (i=0; i < searchedCities.length; i++) {
+      const button = document.createElement("button");
+      button.setAttribute('type', 'button');
+      button.innerHTML = searchedCities[i].city;
+      button.onclick = function() {
+        console.log(searchedCities);
+        console.log(searchedCities[i]);
+        getInfo(searchedCities[i].lat, searchedCities[i].lon, searchedCities[i].city);
+      }
+      document.getElementById("history").appendChild(button);
+    }
+  }
+}
 
+searchFormEl.addEventListener('submit', findCityInfo);
+createButtons();
+
+  
