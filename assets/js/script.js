@@ -1,3 +1,4 @@
+// assigning variables
 let searchInputEl = document.getElementById("search-input");
 let searchFormEl = document.getElementById("search-section");
 futureDates = document.getElementsByClassName("fdate");
@@ -17,10 +18,11 @@ currentIconEl = document.getElementById("weather-icon");
 currentImage = document.getElementById("current-img");
 let weatherFound;
 
+//API links 
 const initialURL = 'https://api.openweathermap.org/data/2.5/forecast?appid=ade8f7a4c03aa4d6280241e8e6da95e0'
-
 const geocodeInitialURL = 'http://api.openweathermap.org/geo/1.0/direct?appid=ade8f7a4c03aa4d6280241e8e6da95e0&q='
 
+//initial function to retrieve latitude/longitude value for searched city input
 const findCityInfo = function(event) {
     event.preventDefault();
 
@@ -49,6 +51,7 @@ const findCityInfo = function(event) {
     }) 
   }
 
+//function to retrieve weather data for searched city and displays to screen
 const getInfo = function(lat, lon, city) {
 
     let updatedURL = `${initialURL}&lat=${lat}&lon=${lon}`;
@@ -63,9 +66,12 @@ const getInfo = function(lat, lon, city) {
       //update current forecast
       weatherFound = data;
       console.log(weatherFound);
+
       cityNameEl.innerHTML = `City: ${weatherFound.city["name"]}`
-      currentDate = document.createTextNode(` ${moment().format("ddd MMM D YYYY")}`);
-      currentDateEl.appendChild(currentDate);
+      currentDateEl.innerHTML = ` ${moment().format("ddd MMM D YYYY")}`
+      // currentDate = document.createTextNode(` ${moment().format("ddd MMM D YYYY")}`);
+      // currentDateEl.appendChild(currentDate);
+
       let totalTemp = 0;
       let totalHumidity = 0;
       let totalWind = 0;
@@ -74,32 +80,51 @@ const getInfo = function(lat, lon, city) {
         totalHumidity += (weatherFound.list[i].main["humidity"]);
         totalWind += (weatherFound.list[i].wind["speed"]);
       }
-      meanTemp = document.createTextNode(` ${Math.round(totalTemp/40)} °C`);
-      currentTempEl.appendChild(meanTemp);
-      meanHumidity = document.createTextNode(` ${Math.round(totalHumidity/40)} %`);
-      currentHumidityEl.appendChild(meanHumidity);
-      meanWind = document.createTextNode(` ${Math.round(totalWind/40)} m/s`);
-      currentWindEl.appendChild(meanWind);
+      
+      currentTempEl.innerHTML = ` ${Math.round(totalTemp/40)} °C`
+      // meanTemp = document.createTextNode(` ${Math.round(totalTemp/40)} °C`);
+      // currentTempEl.appendChild(meanTemp);
+
+      currentHumidityEl.innerHTML = ` ${Math.round(totalHumidity/40)} %`
+      // meanHumidity = document.createTextNode(` ${Math.round(totalHumidity/40)} %`);
+      // currentHumidityEl.appendChild(meanHumidity);
+
+      currentWindEl.innerHTML = ` ${Math.round(totalWind/40)} m/s`
+      // meanWind = document.createTextNode(` ${Math.round(totalWind/40)} m/s`);
+      // currentWindEl.appendChild(meanWind);
+
       let currentIcon = weatherFound.list[0].weather[0].icon;
         let currentIconUrl = `http://openweathermap.org/img/wn/${currentIcon}.png`
         currentIconEl.src = currentIconUrl;
-        currentImage.appendChild(currentIconEl);
+        currentImage.innerHTML = currentIconEl;
+        // currentImage.appendChild(currentIconEl);
+
       //update future 5-day forecast
       for(let i=3; i < 40; i+=8) {
         let j = (i-3)/8;
         let x = new Date(Date.parse(weatherFound.list[i].dt_txt)).toDateString();
-        futureDateText = document.createTextNode(` ${x}`);
-        futureDates[j].appendChild(futureDateText);
-        futureTempText = document.createTextNode(` ${Math.round(weatherFound.list[i].main["temp"] - 273.15)} °C`);
-        futureTemp[j].appendChild(futureTempText);
-        futureWindText = document.createTextNode(` ${weatherFound.list[i].wind["speed"]} m/s`);
-        futureWind[j].appendChild(futureWindText);
-        futureHumidityText = document.createTextNode(` ${weatherFound.list[i].main["humidity"]} %`);
-        futureHumidity[j].appendChild(futureHumidityText);
+
+        futureDates[j].innerHTML = ` ${x}`;
+        // futureDateText = document.createTextNode(` ${x}`);
+        // futureDates[j].appendChild(futureDateText);
+
+        futureTemp[j].innerHTML = ` ${Math.round(weatherFound.list[i].main["temp"] - 273.15)} °C`;
+        // futureTempText = document.createTextNode(` ${Math.round(weatherFound.list[i].main["temp"] - 273.15)} °C`);
+        // futureTemp[j].appendChild(futureTempText);
+
+        futureWind[j].innerHTML = ` ${weatherFound.list[i].wind["speed"]} m/s`;
+        // futureWindText = document.createTextNode(` ${weatherFound.list[i].wind["speed"]} m/s`);
+        // futureWind[j].appendChild(futureWindText);
+
+        futureHumidity[j].innerHTML = ` ${weatherFound.list[i].main["humidity"]} %`;
+        // futureHumidityText = document.createTextNode(` ${weatherFound.list[i].main["humidity"]} %`);
+        // futureHumidity[j].appendChild(futureHumidityText);
+
         let icon = weatherFound.list[i].weather[0].icon;
         let iconUrl = `http://openweathermap.org/img/wn/${icon}.png`
         futureIcon[j].src = iconUrl;
-        image[j].appendChild(futureIcon[j]);
+        image[j].innerHTML = iconUrl;
+        // image[j].appendChild(futureIcon[j]);
       }
       updateHistory(lat, lon, city);
 
@@ -110,6 +135,7 @@ const getInfo = function(lat, lon, city) {
     })
   }
 
+  // adds searched city into local storage and lists as buttons under search bar
 function updateHistory(lat, lon, city) {
   let storedCity = {
     lat: lat,
@@ -125,30 +151,40 @@ function updateHistory(lat, lon, city) {
     localStorage.setItem('cityinfo', JSON.stringify(searchedCities));
     const button = document.createElement("button");
     button.setAttribute('type', 'button');
+    button.dataset.lat = lat;
+    button.dataset.lon = lon;
+    button.dataset.city = city;
     button.innerHTML = storedCity.city;
-    button.onclick = function () {
-      getInfo(storedCity.lat, storedCity.lon, storedCity.city);
-    }
+    button.onclick = buttonSearch;
     document.getElementById("history").appendChild(button);
   }
   searchInputEl.value = '';
 }
 
+//creates and appends buttons onto page on load up
 function createButtons() {
   let searchedCities = JSON.parse(localStorage.getItem("cityinfo"));
   if (searchedCities) { 
     for (i=0; i < searchedCities.length; i++) {
       const button = document.createElement("button");
       button.setAttribute('type', 'button');
+      button.dataset.lat = searchedCities[i].lat;
+      button.dataset.lon = searchedCities[i].lon;
+      button.dataset.city = searchedCities[i].city;
       button.innerHTML = searchedCities[i].city;
-      button.onclick = function() {
-        console.log(searchedCities);
-        console.log(searchedCities[i]);
-        getInfo(searchedCities[i].lat, searchedCities[i].lon, searchedCities[i].city);
-      }
+      // button.onclick = function() {
+      //   getInfo(searchedCities[i].lat, searchedCities[i].lon, searchedCities[i].city);
+      // }
+      button.onclick = buttonSearch;
       document.getElementById("history").appendChild(button);
     }
   }
+}
+
+// runs function so that when button for previous city is clicked, information for that city appears with getInfo function
+function buttonSearch() {
+  console.log(this);
+  getInfo(this.dataset.lat, this.dataset.lon, this.dataset.city);
 }
 
 searchFormEl.addEventListener('submit', findCityInfo);
