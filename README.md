@@ -10,12 +10,12 @@ This webpage is used by entering a city into the search bar, where the informati
 
 ## Deployed Application
 
-The live page is found at https://sagirikenaga.github.io/___________/. 
+The live page is found at https://sagirikenaga.github.io/weather-app/. 
 
 ## Demo
 
 The webpage appears as the following:
-![image](./assets/images/________.png)
+![image](./assets/images/mod6.png)
 
 ## Credits
 
