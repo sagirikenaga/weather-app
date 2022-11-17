@@ -26,9 +26,10 @@ const geocodeInitialURL = 'http://api.openweathermap.org/geo/1.0/direct?appid=ad
 const findCityInfo = function(event) {
     event.preventDefault();
 
-    const cadCode = 'CA';
+    // const cadCode = 'CA';
     const city = searchInputEl.value.trim();
-    const updatedGeocodeUrl = `${geocodeInitialURL}${city},${cadCode}`;
+    // const updatedGeocodeUrl = `${geocodeInitialURL}${city},${cadCode}`;
+    const updatedGeocodeUrl = `${geocodeInitialURL}${city}`
   
     fetch(updatedGeocodeUrl).then(function(response) {
       if (response.ok) {
